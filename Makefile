@@ -8,10 +8,7 @@ CXXFLAGS +=
 
 # Careful about linking to shared libraries, since you can't assume much about the user's environment and library search path.
 # Static libraries are fine, but they should be added to this plugin's build system.
-LDFLAGS +=
-
-#Impromptu
-SOURCES += $(wildcard src/expanded/comp/*.cpp)
+LDFLAGS += -Wl,-rpath=../Fundamental -L../Fundamental -l:plugin.so
 
 # Add .cpp files to the build
 SOURCES += $(wildcard src/expanded/*.cpp)
