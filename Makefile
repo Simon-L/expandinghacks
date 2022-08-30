@@ -10,7 +10,11 @@ CXXFLAGS +=
 # Static libraries are fine, but they should be added to this plugin's build system.
 LDFLAGS +=
 
+#Impromptu
+SOURCES += $(wildcard src/expanded/comp/*.cpp)
+
 # Add .cpp files to the build
+SOURCES += $(wildcard src/expanded/*.cpp)
 SOURCES += $(wildcard src/*.cpp)
 
 # Add files to the ZIP package when running `make dist`

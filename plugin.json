@@ -1,9 +1,9 @@
 {
-  "slug": "dummy-plugin",
-  "name": "Dummy Plugin",
+  "slug": "expandinghacks",
+  "name": "Expanding Hacks",
   "version": "2.0.0",
-  "license": "CC0-1.0",
-  "brand": "DummyModules",
+  "license": "GPL-v3.0+",
+  "brand": "FergusL",
   "author": "Public Domain",
   "authorEmail": "",
   "authorUrl": "",
@@ -14,8 +14,8 @@
   "changelogUrl": "",
   "modules": [
     {
-      "slug": "DummyModule",
-      "name": "DummyModule",
+      "slug": "ExpandThis",
+      "name": "ExpandThis",
       "description": "",
       "tags": []
     }
