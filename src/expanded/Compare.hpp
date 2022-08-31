@@ -36,5 +36,3 @@ struct Compare : Module {
 struct CompareWidget : ModuleWidget {
 	CompareWidget(Compare* module);
 };
-
-Model* modelCompare = createModel<Compare, CompareWidget>("Compare");
