@@ -1,5 +1,6 @@
 #include "plugin.hpp"
 #include "expanded/Compare.hpp"
+#include "expanded/PhraseSeq16.hpp"
 
 struct ExpandThis : Module {
 	enum ParamId {
@@ -22,7 +23,9 @@ struct ExpandThis : Module {
 	dsp::BooleanTrigger Trigger1;
 	dsp::BooleanTrigger Trigger2;
 	Compare* compare;
+	PhraseSeq16* ps16;
 	bool isCompare = false;
+	bool isPs16 = false;
 
 	ExpandThis() {
 		config(PARAMS_LEN, INPUTS_LEN, OUTPUTS_LEN, LIGHTS_LEN);
@@ -39,15 +42,32 @@ struct ExpandThis : Module {
 			bool expanderPresent = (this->leftExpander.module);
 			if (expanderPresent) {
 				DEBUG("Expander is present");
-				if (!isCompare) {
-					compare = reinterpret_cast<Compare*>(this->leftExpander.module);
-					if (compare) {
-						DEBUG("Cast OK");
-						isCompare = true;
+				DEBUG("%s", this->leftExpander.module->getModel()->getFullName().c_str());
+				if (this->leftExpander.module->getModel()->getFullName() == "VCV Compare") {
+					DEBUG("A compare!");
+					if (!isCompare) {
+						compare = reinterpret_cast<Compare*>(this->leftExpander.module);
+						if (compare) {
+							DEBUG("Cast OK");
+							isCompare = true;
+							isPs16 = false;
+						}
+					}
+				}
+				if (this->leftExpander.module->getModel()->getFullName() == "Impromptu PhraseSeq16") {
+					DEBUG("A Ps16!");
+					if (!isPs16) {
+						ps16 = reinterpret_cast<PhraseSeq16*>(this->leftExpander.module);
+						if (ps16) {
+							DEBUG("Cast OK");
+							isPs16 = true;
+							isCompare = false;
+						}
 					}
 				}
 			} else {
 				isCompare = false;
+				isPs16 = false;
 			}
 		}
 		if (Trigger2.process(params[B2_PARAM].getValue())) {
@@ -56,10 +76,13 @@ struct ExpandThis : Module {
 				DEBUG("Setting division to %u", (uint32_t)(params[K1_PARAM].getValue() * 4096 * 2));
 				compare->lightDivider.setDivision((uint32_t)(params[K1_PARAM].getValue() * 4096 * 2));
 			}
+			if (isPs16) {
+				DEBUG("Ps16! Running state: %d Current step: %d", ps16->running, ps16->stepIndexRun);
+			}
 		}
 		if (isCompare) {
 			if (compare->lightDivider.getClock() == compare->lightDivider.getDivision() - 1) {
-				DEBUG("ClockDivider will trigger next (%u %u %f)", compare->lightDivider.getClock(), compare->lightDivider.getDivision(), compare->params[Compare::B_PARAM].getValue());
+				// DEBUG("ClockDivider will trigger next (%u %u %f)", compare->lightDivider.getClock(), compare->lightDivider.getDivision(), compare->params[Compare::B_PARAM].getValue());
 			}
 		}
 	}
@@ -69,14 +92,7 @@ struct ExpandThis : Module {
 struct ExpandThisWidget : ModuleWidget {
 	ExpandThisWidget(ExpandThis* module) {
 		setModule(module);
-		DEBUG("------- %s \n", asset::plugin(pluginInstance).c_str());
-		DEBUG("------- %s %s %s %s \n", pluginInstance->path.c_str(), pluginInstance->name.c_str(), pluginInstance->author.c_str(), pluginInstance->brand.c_str());
-		if (module) {
-			Model* mymodel = module->getModel();
-			if (mymodel) DEBUG("-------:::: %s \n", mymodel->getFullName().c_str());
-		}
-
-		setPanel(createPanel("/home/xox/.Rack2/plugins/expandinghacks/res/dummy-panel.svg"));
+		setPanel(createPanel(asset::plugin(pluginInstance, "res/dummy-panel.svg")));
 
 		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
 		addChild(createWidget<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
